@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SkyScanner {
@@ -12,15 +14,23 @@ public class SkyScanner {
     public static void main(String[] args) {
         try {
             FlightsContainer flightsContainer = convertFromJsonToNormal("flights.json",FlightsContainer.class); // получаем обьект после десериализации
-            System.out.println("Deserializing object toString():");
-            System.out.println("-------------------------------------------------");
-            System.out.println(flightsContainer.toString());
             System.out.println("-------------------------------------------------");
             List<Flight> flights = flightsContainer.getFlights();
-            System.out.println("List of flights:");
-            flights.stream().
-                    forEach(e -> System.out.println
-                            ("fromCity = " + e.getFromCity() + ", " + "toCity = " + e.getToCity()+ ", "  + "price = " + e.getPrice()));
+            List<Flight> sortedFlights = new ArrayList<>();
+
+            flights.stream()
+                    .filter(i -> i.getFromCity().equals("Москва") && i.getToCity().equals("Хабаровск")) //фильтрация по направлению Москва -> Хабаровск
+                    .sorted() //Сортировка по цене билета
+                    .forEach(i -> sortedFlights.add(i));// Запись в новый отсортированный List
+
+            System.out.println("Минимальная стоимость перелета:");
+            System.out.println(sortedFlights.get(0).getPrice());
+            System.out.println("Максимальная стоимость перелета:");
+            System.out.println(sortedFlights.get(sortedFlights.size() - 1).getPrice());
+            double avaragePrice = sortedFlights.stream().
+                    mapToInt(e -> e.getPrice()).average().getAsDouble();
+            System.out.println("Средняя стоимость перелета:");
+            System.out.println(avaragePrice);
             System.out.println("-------------------------------------------------");
         } catch (IOException e) {
             e.printStackTrace();

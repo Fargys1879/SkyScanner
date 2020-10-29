@@ -3,7 +3,7 @@ package com.main;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect
-public class Flight {
+public class Flight implements Comparable<Flight> {
     private String fromCity;
     private String toCity;
     private int price;
@@ -27,5 +27,10 @@ public class Flight {
                 ", toCity='" + toCity + '\'' +
                 ", price=" + price +
                 '}' + '\n';
+    }
+
+    @Override
+    public int compareTo(Flight o) {
+        return this.getPrice() - o.getPrice();
     }
 }
