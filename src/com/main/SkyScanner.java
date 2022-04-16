@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SkyScanner {
@@ -21,18 +20,19 @@ public class SkyScanner {
             flights.stream()
                     .filter(i -> i.getFromCity().equals("Москва") && i.getToCity().equals("Хабаровск")) //фильтрация по направлению Москва -> Хабаровск
                     .sorted() //Сортировка по цене билета
-                    .forEach(i -> sortedFlights.add(i));// Запись в новый отсортированный List
+                    .forEach(sortedFlights::add);// Запись в новый отсортированный List
 
             System.out.println("Минимальная стоимость перелета:");
             System.out.println(sortedFlights.get(0).getPrice());
             System.out.println("Максимальная стоимость перелета:");
             System.out.println(sortedFlights.get(sortedFlights.size() - 1).getPrice());
             double avaragePrice = sortedFlights.stream().
-                    mapToInt(e -> e.getPrice()).average().getAsDouble();
+                    mapToInt(Flight::getPrice).average().
+                    orElseThrow(() -> new IllegalStateException("There no flights to get average"));
             System.out.println("Средняя стоимость перелета:");
             System.out.println(avaragePrice);
             System.out.println("-------------------------------------------------");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -44,13 +44,10 @@ public class SkyScanner {
      * @param <T> Тип класса - обьекта, который будет возвращен
      * @author Evgeniy Shabalin
      * @return <T> object
-     * @throws IOException
+     * @throws IOException when file not exist
      */
     public static <T> T convertFromJsonToNormal(String fileName, Class<T> clazz) throws IOException {
-
         ObjectMapper mapper = new ObjectMapper();
-        T readObj = mapper.readValue(new FileReader(new File(fileName)),clazz);
-
-        return readObj;
+        return mapper.readValue(new FileReader(fileName),clazz);
     }
 }
